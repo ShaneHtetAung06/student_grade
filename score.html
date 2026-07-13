@@ -63,87 +63,95 @@
       </table>
     </div>
     <script>
-      $(document).ready(function () {
-        function calculateTotal(student) {
-          return student.midterm + student.final;
-        }
+    $(document).ready(function () {
 
-        function calculateGrade(total){
-          if(total >= 80) return "A";
-          if(total >= 70) return "B";
-          if(total >= 60) return "C";
-          if(total >= 50) return "D";
-          return "F";
-        }
-        function renderTable(){
-          const table_body = $("#table-body")
-          table_body.empty();
-          students.forEach((student, index) => {
-            const total = calculateTotal(student);
-            const grate = calculateGrade(total)
-            const row = 
-            `
+      function calculateTotal(student) {
+        return student.midterm + student.final;
+      }
+
+      function calculateGrade(total) {
+        if (total >= 80) return "A";
+        if (total >= 70) return "B";
+        if (total >= 60) return "C";
+        if (total >= 50) return "D";
+        return "F";
+      }
+
+      function renderTable() {
+        const table_body = $("#table-body");
+
+        table_body.empty();
+
+        students.forEach((student, index) => {
+          const total = calculateTotal(student);
+          const grade = calculateGrade(total);
+
+          const row = `
             <tr data-index="${index}">
               <td>${student.id}</td>
               <td>${student.name}</td>
-              <td>${student.midterm}</td>
-               <td>${student.final}</td>
-                <td>${calculateTotal(student)}</td>
-                <td>${calculateGrade(total)}</td>
+              <td class="editable" data-field="midterm">${student.midterm}</td>
+              <td class="editable" data-field="final">${student.final}</td>
+              <td class="total">${total}</td>
+              <td class="grade">${grade}</td>
             </tr>
-            `
-            table_body.append(row);
-          });
-        }
+          `;
 
-        function makeEditable(cell){
-          const oldV = cell.text();
-          const field = cell.data("field");
-          const row = cell.closest("tr");
-          const index = row.data("index");
+          table_body.append(row);
+        });
+      }
 
-          const input = $(`<input type="number" min="0" max="50" value="${oldV}" />`);
-          
-          cell.html(input);
-          input.focus();
+      function makeEditable(cell) {
+        const oldV = cell.text();
+        const field = cell.data("field");
+        const row = cell.closest("tr");
+        const index = row.data("index");
 
+        const input = $(`<input type="number" min="0" max="50" value="${oldV}">`);
 
-          input.on("keydown", function(e) {
-            if(e.key == "Enter"){
-              const newV = parseInt(input.val());
+        cell.html(input);
+        input.focus();
 
-              if(isNaN(newV) || newV < 0 ||newV > 50){
-                alert("Score must be between 0 and 50");
-                call.text(oldV);
-                return;
-              }
+        input.on("keydown", function (e) {
 
-              students[index][field] = newV;
-              const total = calculateTotal(student[index]);
-              const grade = calculateGrade(total);
-              row.find(".total").text(total);
-              row.find(".grade").text(grade);
+          if (e.key == "Enter") {
+            const newV = parseInt(input.val());
 
-              cell.text(newV);
-
-            } 
-            if(e.key == "Escape"){
+            if (isNaN(newV) || newV < 0 || newV > 50) {
+              alert("Score must be between 0 and 50");
               cell.text(oldV);
+              return;
             }
-          });
 
-          input.on("blur", function() {
+            students[index][field] = newV;
+
+            const total = calculateTotal(students[index]);
+            const grade = calculateGrade(total);
+
+            row.find(".total").text(total);
+            row.find(".grade").text(grade);
+
+            cell.text(newV);
+          }
+
+          if (e.key == "Escape") {
             cell.text(oldV);
-          });
+          }
 
-        }
-          $("#table-body").on("click", ".editable", function() {
-            makeEditable($(this));
-          });
+        });
 
+        input.on("blur", function () {
+          cell.text(oldV);
+        });
+      }
 
-        renderTable();
+      $("#table-body").on("click", ".editable", function () {
+        makeEditable($(this));
       });
+
+      renderTable();
+
+    });
 
     </script>
   </body>
